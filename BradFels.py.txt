@@ -1,0 +1,338 @@
+BIODIVERISTY CAPSTONE PROJECT - INVESTIGATING PROTECTED SPECIES
+#
+# PAGE 1
+#
+import codecademylib
+#
+#1 - You'll need pandas and matplotlib for this project. Import both modules.
+#
+from matplotlib import pyplot as plt
+import pandas as pd
+#
+#2 - Load species_info.csv into a DataFrame called 
+#
+species = pd.read_csv('species_info.csv')
+#
+#3 - Print and inspect the DataFrame by using .head()
+#
+print(species.head())
+# 
+# PAGE 2
+#
+#1 - How many different species are in the species DataFrame?
+#
+species_count = len(species)
+#
+#2 - What are the different values of category in the DataFrame species?
+#
+species_type = species.category.unique()
+#
+#3 - What are the different values of conservation_status?
+#
+conservation_statuses = species.conservation_status.unique()
+#  
+# PAGE 3
+#
+#1 - Use groupby to count how many scientific_name falls into each conversation_status criteria.
+#
+conservation_counts = species.groupby('conservation_status').scientific_name.nunique().reset_index()
+#
+#2 - Print conversation_counts and take a minute to think about what the DataFrame is telling you.
+#
+print conservation_counts
+# 
+# PAGE 4
+#
+#1 - Paste the following code into the workspace and run it to replace NaN in our DataFrame with 'No Intervention':
+#
+species.fillna('No Intervention', inplace = True)
+#
+#2 - Now run the same groupby as before to see how many species require No Intervention
+#
+conservation_counts_fixed = species.groupby('conservation_status').scientific_name.nunique().reset_index()
+print conservation_counts_fixed
+#
+# PAGE 5
+#
+from matplotlib import pyplot as plt
+#
+species = pd.read_csv('species_info.csv')
+#
+species.fillna('No Intervention', inplace = True)
+#
+#1 - Paste the following code and run it to create a new DataFrame called protection_counts, which is sorted by scientific_name
+#
+protection_counts = species.groupby('conservation_status')\
+    .scientific_name.nunique().reset_index()\
+    .sort_values(by='scientific_name')
+#    
+#
+#2 - Create a bar chart
+#
+# Create a wide figure with figsize = (10,4)
+#
+plt.figure(figsize=(10, 4))
+#
+# Create an axes objected called ax using plt.subplot
+#
+ax = plt.subplot()
+#
+# Create a bar chart whose heights are equal to the scientific_name column of protection_counts
+#
+plt.bar(range(len(protection_counts)),protection_counts.scientific_name.values)
+#
+# Create an x-tick for each of the bars
+#
+ax.set_xticks(range(len(protection_counts)))
+#
+# Label each x-tick with the label from conservation_status in protection_counts
+#
+ax.set_xticklabels(protection_counts.conservation_status.values)
+#
+# Label the y-axis Number of Species
+#
+plt.ylabel('Number of Species')
+#
+# Title the graph Conservation Status by Species
+#
+plt.title('Conservation Status by Species')
+#
+# Plot the graph using plt.show()
+#
+plt.show()   
+#
+# PAGE 6
+#
+import codecademylib
+import pandas as pd
+from matplotlib import pyplot as plt
+#
+species = pd.read_csv('species_info.csv')
+#
+species.fillna('No Intervention', inplace = True)
+#
+species['is_protected'] = species.conservation_status != 'No Intervention'
+#
+category_counts = species.groupby(['category', 'is_protected']).scientific_name.nunique().reset_index()
+#
+category_pivot = category_counts.pivot(columns='is_protected',
+                     index='category',
+                      values='scientific_name')\
+                      .reset_index()
+#  
+#1 - True and False are pretty vague column names. Let's use the .columns to rename the categories True and False to something more descriptive:
+#Rename False to not_protected.
+#Rename True to protected
+#
+category_pivot.columns = ['category', 'not_protected', 'protected']
+#
+#2 - Let's create a new column in category_pivot called percent_protected, which is equal to protected (the number of species that are protected) divided by protected plus not_protected (the total 
+number of species).
+#
+category_pivot['percent_protected'] = category_pivot.protected / (category_pivot.protected + category_pivot.not_protected)
+#
+#3 - Examine category_pivot. What does the new percent_protected column seem to indicate?
+print category_pivot
+#  
+# PAGE 7
+#
+import codecademylib
+import pandas as pd
+from matplotlib import pyplot as plt
+#
+species = pd.read_csv('species_info.csv')
+species.fillna('No Intervention', inplace = True)
+species['is_protected'] = species.conservation_status != 'No Intervention'
+category_counts = species.groupby(['category', 'is_protected']).scientific_name.nunique().reset_index()
+category_pivot = category_counts.pivot(columns='is_protected',
+                      index='category',
+                      values='scientific_name')\
+                      .reset_index()
+#
+#1 - True and False are pretty vague column names. Let's use the .columns to rename the categories True and False to something more descriptive:
+#Rename False to not_protected.
+#Rename True to protected
+#
+category_pivot.columns = ['category', 'not_protected', 'protected']
+#
+#2 - Let's create a new column in category_pivot called percent_protected, which is equal to protected (the number of species that are protected) divided by protected plus not_protected (the total number of species).
+#
+category_pivot['percent_protected'] = category_pivot.protected / (category_pivot.protected + category_pivot.not_protected)
+#
+#3 - Examine category_pivot. What does the new percent_protected column seem to indicate?
+#
+print category_pivot
+#  
+# PAGE 8
+#
+import codecademylib
+import pandas as pd
+from matplotlib import pyplot as plt
+#
+#1 - Create a table called contingency and fill it with the correct values. You do not need to include column names in the contingency table.
+#
+contingency = [[30, 146],
+              [75, 413]]
+#
+#2 - In order to perform our chi-squared test, we'll need to import the correct function from scipy. Paste the following code and run it:
+#
+from scipy.stats import chi2_contingency
+#
+#3 - Run chi2_contingency on the contingency table. Save the p-value from this test to the variable pval.
+#
+pval = chi2_contingency(contingency)[1]
+print(pval)
+#
+# alternate version of Chi syntax
+#dummy1,pval2,dummy3,dummy4 = chi2_contingency(contingency)
+#print(pval2)
+# No significant difference because pval > 0.05
+#
+#4 - It looks like this difference isn't significant! Let's test another. Is the difference between Reptile and Mammal significant? Save the p-value to pval_reptile_mammal.
+
+contingency_reptile_mammal = [[30, 146],
+                              [5, 73]]
+#
+pval_reptile_mammal = chi2_contingency(contingency_reptile_mammal)[1]
+print(pval_reptile_mammal)
+# Significant difference! pval_reptile_mammal < 0.05
+#   
+# PAGE 9
+# PAGE 10
+#
+import codecademylib
+import pandas as pd
+from matplotlib import pyplot as plt
+#
+species = pd.read_csv('species_info.csv')
+species.fillna('No Intervention', inplace = True)
+species['is_protected'] = species.conservation_status != 'No Intervention'
+#
+#1 - Load observations.csv into a variable called observations.
+#
+observations = pd.read_csv('observations.csv')
+#
+#2 - Inspect the first couple rows of observations by printing it and using .head()
+#
+print observations.head()  
+#
+# PAGE 11
+#
+#1 - Use apply and a lambda function to create a new column in species called is_sheep which is True if the common_names contains 'Sheep', and False otherwise
+#
+species['is_sheep'] = species.common_names.apply(lambda x: 'Sheep' in x)
+#
+# alternate way to do step 1
+#is_sheep = lambda x: 'Sheep' in x
+#species['is_sheep'] = species.common_names.apply(is_sheep)
+#
+#2 - Select the rows of species where is_sheep is True and save it to the variable species_is_sheep
+#
+species_is_sheep = species[species.is_sheep]
+#
+#3 - Print species_is_sheep and inspect the results. You will want to browse through all the entries so don't use .head().
+#
+print species_is_sheep
+#
+#4 - Many of the results are actually plants. Select the rows of species where is_sheep is True and category is Mammal. Save the results to the variable sheep_species
+#
+sheep_species = species[(species.is_sheep) & (species.category == 'Mammal')]
+#
+#5 - Print and inspect sheep_species
+#
+print sheep_species
+# 
+# PAGE 12
+#
+#1 = Now merge sheep_species with observations to get a DataFrame with observations of sheep. Save this DataFrame as sheep_observations.
+#
+sheep_observations = sheep_species.merge(observations)
+#
+#2 - Print and inspect the first couple rows of sheep_observations using .head().
+#
+print sheep_observations.head()
+#
+#3 - How many total sheep sightings (across all three species) were made at each national park? Use groupby to get the sum of observations for each park_name. Save your answer to obs_by_park.
+#
+obs_by_park = sheep_observations.groupby('park_name').observations.sum().reset_index()
+#
+#4 - Print obs_by_park. This is the total number of sheep observed in each park over the past 7 days
+#
+print obs_by_park
+# 
+# PAGE 13
+#
+#1 Create a bar chart showing the different number of observations per week at each park.
+#
+#Start by creating a wide figure with figsize=(16, 4)
+#
+plt.figure(figsize=(16,4))
+#
+#Create an axes object called ax using plt.subplot.
+#
+ax = plt.subplot()
+#
+#Create a bar chart whose heights are equal to observations column of obs_by_park.
+#
+plt.bar(range(len(obs_by_park)),
+        obs_by_park.observations.values)
+#
+#Create an x-tick for each of the bars.
+#
+ax.set_xticks(range(len(obs_by_park)))
+#
+#Label each x-tick with the label from park_name in obs_by_park
+#
+ax.set_xticklabels(obs_by_park.park_name.values)
+#
+#Label the y-axis Number of Observations
+#
+plt.ylabel('Number of Observations')
+#
+#Title the graph Observations of Sheep per Week
+#
+plt.title('Observations of Sheep per Week')
+#
+#Plot the graph using plt.show()
+#
+plt.show()
+#
+#Create an x-tick for each of the bars.
+#
+ax.set_xticks(range(len(observations)))
+#
+#Label each x-tick with the label from park_name in obs_by_park
+#
+ax.set_xticklabels(park_name,rotation=30)
+#
+#Label the y-axis Number of Observations
+#
+plt.ylabel('Number of Observations')
+#
+#Title the graph Observations of Sheep per Week
+#
+plt.title('Observations of Sheep per Week')
+#
+#Plot the graph using plt.show()
+#
+plt.show()
+#  
+# PAGE 14
+#
+#1 - What is the baseline percentage of this sample size determination?
+baseline = 15
+#
+#2 - Calculate "Minimum Detectable Effect".
+minimum_detectable_effect = 33
+#
+#3 - Plug the baseline and the minimum detectable effect into the sample size calculator. Set the level of significance to 90%. Save the sample size per variant frmo the calculator.
+sample_size_per_variant = 510
+#
+#4 - Using the observation data calculated earlier, how many weeks would the scientists need to spend at Yellowstone National Park to observe enough sheep?
+yellowstone_weeks_observing = 1
+#
+#5 - The scientists also want to repeat their measurements at Bryce National Park. How many weeks will they have to spend there to observe enough sheep?
+bryce_weeks_observing = 2
+#
+# PAGE 15
+#
